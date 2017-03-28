@@ -1,0 +1,39 @@
+{
+  "name": "persistgraphql-webpack-plugin",
+  "version": "0.1.0",
+  "description": "PersistGraphQL Webpack Plugin",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint --fix .",
+    "posttest": "npm run lint",
+    "test": "NODE_ENV=coverage nyc --check-coverage --lines 40 --branches 19 npm run tests",
+    "tests": "mocha",
+    "tests:watch": "mocha -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sysgears/persistgraphql-webpack-plugin.git"
+  },
+  "keywords": [
+    "webpack-plugin",
+    "graphql",
+    "apollo-client"
+  ],
+  "author": "SysGears INC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sysgears/persistgraphql-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/sysgears/persistgraphql-webpack-plugin#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.18.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.2.0",
+    "persistgraphql": "^0.3.1",
+    "webpack": "^2.3.2",
+    "webpack-overlay-modules": "git+https://github.com/sysgears/webpack-overlay-modules.git"
+  },
+  "dependencies": {},
+  "greenkeeper": {}
+}
