@@ -6,7 +6,6 @@ function PersistGraphQLPlugin(options) {
   if (this.options.provider) {
     this.options.provider._addListener(this);
   } else {
-    this._srcMap = {};
     this._listeners = [];
   }
   this.overlayModules = new OverlayModulesPlugin();
