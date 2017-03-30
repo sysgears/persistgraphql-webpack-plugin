@@ -3,7 +3,7 @@
 var webpack = require("webpack");
 var assert = require("chai").assert;
 
-var Plugin = require("../src/index");
+var Plugin = require("../index");
 
 describe("persistgraphql-webpack-plugin", function() {
   it("should NOT fail if applied as plugin", function() {
