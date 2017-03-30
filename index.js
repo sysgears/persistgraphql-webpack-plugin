@@ -1,5 +1,7 @@
 var VirtualModulesPlugin = require('webpack-virtual-modules');
-var RawSource = require("webpack-sources").RawSource;
+var RawSource = require('webpack-sources').RawSource;
+var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
+var path = require('path');
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
@@ -18,7 +20,9 @@ PersistGraphQLPlugin.prototype._addListener = function(listener) {
 PersistGraphQLPlugin.prototype._notify = function(queryMap) {
   var self = this;
 
-  self.virtualModules.writeModule(self.modulePath, queryMap);
+  if (self._queryMap !== queryMap) {
+    self.virtualModules.writeModule(self.modulePath, queryMap);
+  }
   self._queryMap = queryMap;
   if (self._callback) {
     self._callback();
@@ -39,11 +43,12 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
 
   self.virtualModules.apply(compiler);
   self._compiler = compiler;
-  var moduleName = self.options.moduleName || 'persisted_queries';
-  self.modulePath = 'node_modules/' + moduleName + '.json';
+  var moduleName = self.options.moduleName || 'persisted_queries.json';
+  self.modulePath = path.join('node_modules', moduleName);
 
-  var queryMapNeeded = false;
-
+  if (!self.options.provider) {
+    var hasPlaceholder = false;
+  }
   compiler.plugin('after-resolvers', function() {
     compiler.resolvers.normal.plugin('before-resolve', function(request, callback) {
       if (request.request.indexOf(moduleName) >= 0) {
@@ -54,9 +59,9 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
             self._callback = callback;
           }
         } else {
-          if (!queryMapNeeded) {
+          if (!hasPlaceholder) {
             self.virtualModules.writeModule(self.modulePath, '{}');
-            queryMapNeeded = true;
+            hasPlaceholder = true;
           }
           if (callback)
             callback();
@@ -70,24 +75,41 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
 
   if (!self.options.provider) {
     compiler.plugin('compilation', function(compilation) {
-      queryMapNeeded = false;
       compilation.plugin('seal', function() {
-        if (queryMapNeeded) {
-          var id = 1;
-          var mapObj = {};
-          compilation.modules.forEach(function(module) {
-            var queries = module._graphQLQueries;
-            if (queries) {
-              Object.keys(queries).forEach(function(query) {
-                mapObj[query] = id++;
-              });
-            }
+        var graphQLString = '';
+        var allQueries = [];
+        compilation.modules.forEach(function(module) {
+          var queries = module._graphQLQueries;
+          if (queries) {
+            Object.keys(queries).forEach(function(query) {
+              allQueries.push(query);
+            });
+          } else if (module._graphQLString) {
+            graphQLString += module._graphQLString;
+          }
+        });
+
+        var queries = new ExtractGQL({inputFilePath: this.resource})
+          .createOutputMapFromString(graphQLString);
+        if (Object.keys(queries).length) {
+          Object.keys(queries).forEach(function(query) {
+            allQueries.push(query);
           });
-          self._queryMap = JSON.stringify(mapObj);
-        } else {
-          self._queryMap = "{}";
         }
-        self.virtualModules.writeModule(self.modulePath, "module.exports = " + JSON.stringify(self._queryMap));
+
+        var mapObj = {};
+        var id = 1;
+
+        allQueries.sort().forEach(function(query) {
+          mapObj[query] = id++;
+        });
+
+        self._queryMap = JSON.stringify(mapObj);
+        compilation.modules.forEach(function(module) {
+          if (module.resource === path.join(compiler.context, self.modulePath)) {
+            module._source = new RawSource("module.exports = " + JSON.stringify(self._queryMap));
+          }
+        });
         self._listeners.forEach(function(listener) { listener._notify(self._queryMap); });
       });
     });
