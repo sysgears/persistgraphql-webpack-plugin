@@ -1,4 +1,5 @@
 var VirtualModulesPlugin = require('webpack-virtual-modules');
+var OriginalSource = require('webpack-sources').OriginalSource;
 var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
 var path = require('path');
@@ -60,15 +61,14 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
           }
         } else {
           if (!hasPlaceholder) {
+            self._queryMap = '{}';
             self.virtualModules.writeModule(self.modulePath, '{}');
             hasPlaceholder = true;
           }
-          if (callback)
-            callback();
+          callback();
         }
       } else {
-        if (callback)
-          callback();
+        callback();
       }
     });
   });
@@ -89,12 +89,14 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
           }
         });
 
-        var queries = new ExtractGQL({inputFilePath: this.resource})
-          .createOutputMapFromString(graphQLString);
-        if (Object.keys(queries).length) {
-          Object.keys(queries).forEach(function(query) {
-            allQueries.push(query);
-          });
+        if (graphQLString) {
+          var queries = new ExtractGQL({inputFilePath: ''})
+            .createOutputMapFromString(graphQLString);
+          if (Object.keys(queries).length) {
+            Object.keys(queries).forEach(function(query) {
+              allQueries.push(query);
+            });
+          }
         }
 
         var mapObj = {};
@@ -104,12 +106,15 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
           mapObj[query] = id++;
         });
 
-        self._queryMap = JSON.stringify(mapObj);
-        compilation.modules.forEach(function(module) {
-          if (module.resource === path.join(compiler.context, self.modulePath)) {
-            module._source = new RawSource("module.exports = " + JSON.stringify(self._queryMap));
-          }
-        });
+        var newQueryMap = JSON.stringify(mapObj);
+        if (newQueryMap !== self._queryMap) {
+          compilation.modules.forEach(function(module) {
+            if (module.resource === path.join(compiler.context, self.modulePath)) {
+              module._source = new OriginalSource("module.exports = " + JSON.stringify(self._queryMap) + ";", module.resource);
+            }
+          });
+          self._queryMap = newQueryMap;
+        }
         self._listeners.forEach(function(listener) { listener._notify(self._queryMap); });
       });
     });
