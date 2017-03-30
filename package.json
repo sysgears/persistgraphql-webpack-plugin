@@ -35,6 +35,6 @@
   },
   "dependencies": {
     "webpack-overlay-modules": "git+https://github.com/sysgears/webpack-overlay-modules.git"
-   },
+  },
   "greenkeeper": {}
 }
