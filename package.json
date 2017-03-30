@@ -2,7 +2,7 @@
   "name": "persistgraphql-webpack-plugin",
   "version": "0.1.0",
   "description": "PersistGraphQL Webpack Plugin",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "lint": "eslint --fix .",
     "posttest": "npm run lint",
