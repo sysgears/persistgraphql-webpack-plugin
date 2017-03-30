@@ -1,4 +1,4 @@
-var OverlayModulesPlugin = require('webpack-overlay-modules');
+var VirtualModulesPlugin = require('webpack-virtual-modules');
 var RawSource = require("webpack-sources").RawSource;
 
 function PersistGraphQLPlugin(options) {
@@ -8,7 +8,7 @@ function PersistGraphQLPlugin(options) {
   } else {
     this._listeners = [];
   }
-  this.overlayModules = new OverlayModulesPlugin();
+  this.virtualModules = new VirtualModulesPlugin();
 }
 
 PersistGraphQLPlugin.prototype._addListener = function(listener) {
@@ -18,7 +18,7 @@ PersistGraphQLPlugin.prototype._addListener = function(listener) {
 PersistGraphQLPlugin.prototype._notify = function(queryMap) {
   var self = this;
 
-  self.overlayModules.writeModule(self.modulePath, queryMap);
+  self.virtualModules.writeModule(self.modulePath, queryMap);
   self._queryMap = queryMap;
   if (self._callback) {
     self._callback();
@@ -37,7 +37,7 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
   PersistGraphQLPlugin.prototype.apply = function(compiler) {
   var self = this;
 
-  self.overlayModules.apply(compiler);
+  self.virtualModules.apply(compiler);
   self._compiler = compiler;
   var moduleName = self.options.moduleName || 'persisted_queries';
   self.modulePath = 'node_modules/' + moduleName + '.json';
@@ -55,7 +55,7 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
           }
         } else {
           if (!queryMapNeeded) {
-            self.overlayModules.writeModule(self.modulePath, '{}');
+            self.virtualModules.writeModule(self.modulePath, '{}');
             queryMapNeeded = true;
           }
           if (callback)
@@ -87,7 +87,7 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
         } else {
           self._queryMap = "{}";
         }
-        self.overlayModules.writeModule(self.modulePath, "module.exports = " + JSON.stringify(self._queryMap));
+        self.virtualModules.writeModule(self.modulePath, "module.exports = " + JSON.stringify(self._queryMap));
         self._listeners.forEach(function(listener) { listener._notify(self._queryMap); });
       });
     });

@@ -34,7 +34,7 @@
     "webpack": "^2.3.2"
   },
   "dependencies": {
-    "webpack-overlay-modules": "git+https://github.com/sysgears/webpack-overlay-modules.git"
+    "webpack-virtual-modules": "^0.1.1"
   },
   "greenkeeper": {}
 }
