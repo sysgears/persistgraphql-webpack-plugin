@@ -1,6 +1,6 @@
 {
   "name": "persistgraphql-webpack-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "PersistGraphQL Webpack Plugin",
   "main": "index.js",
   "scripts": {
@@ -30,12 +30,14 @@
     "eslint": "^3.18.0",
     "mocha": "^3.2.0",
     "nyc": "^10.2.0",
-    "persistgraphql": "^0.3.1",
     "webpack": "^2.3.2"
   },
   "dependencies": {
+    "persistgraphql": "^0.3.1",
     "webpack-virtual-modules": "^0.1.2"
   },
-  "files": ["*.js"],
+  "files": [
+    "*.js"
+  ],
   "greenkeeper": {}
 }
