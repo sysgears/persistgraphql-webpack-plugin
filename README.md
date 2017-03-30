@@ -17,7 +17,7 @@ npm install --save-dev persistgraphql-webpack-plugin
 
 Sample Webpack config:
 
-```
+```js
 var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
 
 module.exports = {
@@ -51,14 +51,14 @@ In the source code of front-end persisted GraphQL queries will be injected
 as a virtual module `persisted_queries.json`. This module will be updated if queries added or changed. Also asset with name
 `persisted_queries.json` will be generated during compilation and written to output directory.
 
-```
+```js
 var queryMap = require('persisted_queries.json');
 console.log(queryMap);
 ```
 
 ### When Webpack is used both for back-end and front-end
 
-```
+```js
 var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
 
 const frontendPersistPlugin = new PersistGraphQLPlugin();
@@ -101,7 +101,7 @@ var backendWebpackConfig = {
 Both in the source code of front-end and back-end persisted GraphQL queries will be injected 
 as a virtual module `persisted_queries.json`. This module will be updated if queries added or changed.
 
-```
+```js
 var queryMap = require('persisted_queries.json');
 console.log(queryMap);
 ```
