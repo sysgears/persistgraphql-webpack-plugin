@@ -31,15 +31,7 @@ PersistGraphQLPlugin.prototype._notify = function(queryMap) {
   }
 };
 
-PersistGraphQLPlugin.prototype.jsLoader = function() {
-  return require.resolve('./js-loader');
-};
-
-PersistGraphQLPlugin.prototype.graphqlLoader = function() {
-  return require.resolve('./graphql-loader');
-};
-
-  PersistGraphQLPlugin.prototype.apply = function(compiler) {
+PersistGraphQLPlugin.prototype.apply = function(compiler) {
   var self = this;
 
   self.virtualModules.apply(compiler);
@@ -109,6 +101,7 @@ PersistGraphQLPlugin.prototype.graphqlLoader = function() {
         var newQueryMap = JSON.stringify(mapObj);
         if (newQueryMap !== self._queryMap) {
           compilation.modules.forEach(function(module) {
+            // console.log(module.resource, path.join(compiler.context, self.modulePath));
             if (module.resource === path.join(compiler.context, self.modulePath)) {
               module._source = new OriginalSource("module.exports = " + JSON.stringify(self._queryMap) + ";", module.resource);
             }

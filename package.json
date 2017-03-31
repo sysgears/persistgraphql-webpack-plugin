@@ -1,14 +1,14 @@
 {
   "name": "persistgraphql-webpack-plugin",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "PersistGraphQL Webpack Plugin",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --fix .",
     "posttest": "npm run lint",
-    "test": "NODE_ENV=coverage nyc --check-coverage --lines 40 --branches 19 npm run tests",
+    "test": "NODE_ENV=coverage nyc --check-coverage --lines 88 --branches 65 npm run tests",
     "tests": "mocha",
-    "tests:watch": "mocha -w"
+    "tests:watch": "DEBUG=webpack-virtual-modules mocha -w"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^3.18.0",
+    "memory-fs": "^0.4.1",
     "mocha": "^3.2.0",
     "nyc": "^10.2.0",
     "webpack": "^2.3.2"

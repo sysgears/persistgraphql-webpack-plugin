@@ -28,14 +28,16 @@ module.exports = {
         // ...
         use: [
           'babel-loader', 
-          'persistgraphql-webpack-plugin/js-loader' // Should come AFTER babel
+          // Should come AFTER babel-loader
+          'persistgraphql-webpack-plugin/js-loader'
         ]
       },
       {
         test: /\.(graphql|gql)$/,
         use: [
           'graphql-tag/loader', 
-          'persistgraphql-webpack-plugin/graphql-loader' // Should come AFTER graphql-tag/loader
+          // Should come AFTER graphql-tag/loader
+          'persistgraphql-webpack-plugin/graphql-loader'
         ]
       },
     ]
@@ -62,7 +64,8 @@ console.log(queryMap);
 var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
 
 const frontendPersistPlugin = new PersistGraphQLPlugin();
-const backendPersistPlugin = new PersistGraphQLPlugin({provider: clientPersistPlugin});
+const backendPersistPlugin = 
+    new PersistGraphQLPlugin({provider: clientPersistPlugin});
 
 var frontendWebpackConfig = {
   module: {
@@ -72,14 +75,16 @@ var frontendWebpackConfig = {
         // ...
         use: [
           'babel-loader', 
-          'persistgraphql-webpack-plugin/js-loader' // Should come AFTER babel
+          // Should come AFTER babel
+          'persistgraphql-webpack-plugin/js-loader'
         ]
       },
       {
         test: /\.(graphql|gql)$/,
         use: [
           'graphql-tag/loader', 
-          'persistgraphql-webpack-plugin/graphql-loader' // Should come AFTER graphql-tag/loader
+          // Should come AFTER graphql-tag/loader
+          'persistgraphql-webpack-plugin/graphql-loader'
         ]
       },
     ]
