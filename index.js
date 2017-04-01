@@ -84,11 +84,9 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         if (graphQLString) {
           var queries = new ExtractGQL({inputFilePath: ''})
             .createOutputMapFromString(graphQLString);
-          if (Object.keys(queries).length) {
-            Object.keys(queries).forEach(function(query) {
-              allQueries.push(query);
-            });
-          }
+          Object.keys(queries).forEach(function(query) {
+            allQueries.push(query);
+          });
         }
 
         var mapObj = {};
@@ -101,7 +99,6 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         var newQueryMap = JSON.stringify(mapObj);
         if (newQueryMap !== self._queryMap) {
           compilation.modules.forEach(function(module) {
-            // console.log(module.resource, path.join(compiler.context, self.modulePath));
             if (module.resource === path.join(compiler.context, self.modulePath)) {
               module._source = new OriginalSource("module.exports = " + JSON.stringify(self._queryMap) + ";", module.resource);
             }
