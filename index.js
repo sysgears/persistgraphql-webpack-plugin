@@ -98,12 +98,12 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
 
         var newQueryMap = JSON.stringify(mapObj);
         if (newQueryMap !== self._queryMap) {
+          self._queryMap = newQueryMap;
           compilation.modules.forEach(function(module) {
             if (module.resource === path.join(compiler.context, self.modulePath)) {
               module._source = new OriginalSource("module.exports = " + JSON.stringify(self._queryMap) + ";", module.resource);
             }
           });
-          self._queryMap = newQueryMap;
         }
         self._listeners.forEach(function(listener) { listener._notify(self._queryMap); });
       });
