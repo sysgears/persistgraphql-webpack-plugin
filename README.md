@@ -120,6 +120,7 @@ new PersistGraphQLPlugin(options: object)
 |Name|Type|Description|
 |:--:|:--:|:----------|
 |**`filename`**|`{String}`|Name of the ouput file with persisted GraphQL queries|
+|**`addTypename`**|`{Boolean}`|Apply a query transformation to the query documents, adding the __typename field at every level of the query. You must pass this option if your client code uses this query transformation.|
 |**`moduleName`**|`{String}`|Name of virtual wepback module with persisted GraphQL queries, `persisted_queries.json` by default|
 |**`provider`**|`{Object}`|Instance of plugin running on another webpack instance which will provide persisted GraphQL queries|
 

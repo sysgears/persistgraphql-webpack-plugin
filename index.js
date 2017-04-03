@@ -3,6 +3,7 @@ var OriginalSource = require('webpack-sources').OriginalSource;
 var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
 var path = require('path');
+var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers').addTypenameTransformer;
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
@@ -82,7 +83,8 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         });
 
         if (graphQLString) {
-          var queries = new ExtractGQL({inputFilePath: ''})
+          var queries = new ExtractGQL({inputFilePath: '',
+            queryTransformers: self.options.addTypename ? [addTypenameTransformer] : undefined})
             .createOutputMapFromString(graphQLString);
           Object.keys(queries).forEach(function(query) {
             allQueries.push(query);
