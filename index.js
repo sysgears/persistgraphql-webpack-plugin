@@ -101,6 +101,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         var newQueryMap = JSON.stringify(mapObj);
         if (newQueryMap !== self._queryMap) {
           self._queryMap = newQueryMap;
+          self.virtualModules.writeModule(self.modulePath, self._queryMap);
           compilation.modules.forEach(function(module) {
             if (module.resource === path.join(compiler.context, self.modulePath)) {
               module._source = new OriginalSource("module.exports = " + JSON.stringify(self._queryMap) + ";", module.resource);
