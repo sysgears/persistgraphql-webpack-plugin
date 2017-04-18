@@ -50,8 +50,9 @@ module.exports = {
 ```
 
 In the source code of front-end persisted GraphQL queries will be injected 
-as a virtual module `persisted_queries.json`. This module will be updated if queries added or changed. Also asset with name
-`persisted_queries.json` will be generated during compilation and written to output directory.
+as a virtual module `node_modules/persisted_queries.json`. This module will be updated
+if queries added or changed. Also asset with name `persisted_queries.json` will be generated 
+during compilation and written to output directory.
 
 ```js
 var queryMap = require('persisted_queries.json');
@@ -104,7 +105,7 @@ var backendWebpackConfig = {
 ```
 
 Both in the source code of front-end and back-end persisted GraphQL queries will be injected 
-as a virtual module `persisted_queries.json`. This module will be updated if queries added or changed.
+as a virtual module `node_modules/persisted_queries.json`. This module will be updated if queries added or changed.
 
 ```js
 var queryMap = require('persisted_queries.json');
@@ -121,7 +122,7 @@ new PersistGraphQLPlugin(options: object)
 |:--:|:--:|:----------|
 |**`filename`**|`{String}`|Name of the ouput file with persisted GraphQL queries|
 |**`addTypename`**|`{Boolean}`|Apply a query transformation to the query documents, adding the __typename field at every level of the query. You must pass this option if your client code uses this query transformation.|
-|**`moduleName`**|`{String}`|Name of virtual wepback module with persisted GraphQL queries, `persisted_queries.json` by default|
+|**`moduleName`**|`{String}`|Name of virtual wepback module with persisted GraphQL queries, `node_modules/persisted_queries.json` by default|
 |**`provider`**|`{Object}`|Instance of plugin running on another webpack instance which will provide persisted GraphQL queries|
 
 ## License

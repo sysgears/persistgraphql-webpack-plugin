@@ -7,6 +7,7 @@ var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers')
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
+  this.options.moduleName = this.options.moduleName || 'node_modules/persisted_queries.json';
   if (this.options.provider) {
     this.options.provider._addListener(this);
   } else {
@@ -23,7 +24,7 @@ PersistGraphQLPlugin.prototype._notify = function(queryMap) {
   var self = this;
 
   if (self._queryMap !== queryMap) {
-    self.virtualModules.writeModule(self.modulePath, queryMap);
+    self.virtualModules.writeModule(self.options.moduleName, queryMap);
   }
   self._queryMap = queryMap;
   if (self._callback) {
@@ -37,15 +38,14 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
 
   self.virtualModules.apply(compiler);
   self._compiler = compiler;
-  var moduleName = self.options.moduleName || 'persisted_queries.json';
-  self.modulePath = path.join('node_modules', moduleName);
 
   if (!self.options.provider) {
     var hasPlaceholder = false;
   }
   compiler.plugin('after-resolvers', function() {
     compiler.resolvers.normal.plugin('before-resolve', function(request, callback) {
-      if (request.request.indexOf(moduleName) >= 0) {
+      const requestPath = path.resolve(path.join(request.path, request.request));
+      if (requestPath.indexOf(self.options.moduleName) >= 0) {
         if (self.options.provider) {
           if (self._queryMap) {
             callback();
@@ -55,7 +55,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         } else {
           if (!hasPlaceholder) {
             self._queryMap = '{}';
-            self.virtualModules.writeModule(self.modulePath, '{}');
+            self.virtualModules.writeModule(self.options.moduleName, '{}');
             hasPlaceholder = true;
           }
           callback();
@@ -101,9 +101,9 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         var newQueryMap = JSON.stringify(mapObj);
         if (newQueryMap !== self._queryMap) {
           self._queryMap = newQueryMap;
-          self.virtualModules.writeModule(self.modulePath, self._queryMap);
+          self.virtualModules.writeModule(self.options.moduleName, self._queryMap);
           compilation.modules.forEach(function(module) {
-            if (module.resource === path.join(compiler.context, self.modulePath)) {
+            if (module.resource === path.join(compiler.context, self.options.moduleName)) {
               module._source = new OriginalSource("module.exports = " + self._queryMap + ";", module.resource);
             }
           });
