@@ -44,7 +44,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
   }
   compiler.plugin('after-resolvers', function() {
     compiler.resolvers.normal.plugin('before-resolve', function(request, callback) {
-      const requestPath = path.resolve(path.join(request.path, request.request));
+      var requestPath = path.resolve(path.join(request.path, request.request));
       if (requestPath.indexOf(self.options.moduleName) >= 0) {
         if (self.options.provider) {
           if (self._queryMap) {
