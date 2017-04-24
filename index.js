@@ -7,7 +7,8 @@ var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers')
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
-  this.options.moduleName = this.options.moduleName || 'node_modules/persisted_queries.json';
+  if (!this.options.moduleName)
+    throw new Error("moduleName option is required for PersistGraphQLPlugin");
   if (this.options.provider) {
     this.options.provider._addListener(this);
   } else {

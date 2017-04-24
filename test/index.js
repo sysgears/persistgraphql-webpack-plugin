@@ -8,9 +8,17 @@ var MemoryFileSystem = require("memory-fs");
 var Plugin = require("../index");
 var VirtualPlugin = require("webpack-virtual-modules");
 
+var moduleName = path.resolve('node_modules/persisted_queries.json');
+
 describe("persistgraphql-webpack-plugin", function() {
+  it("should fail if moduleName not specified", function() {
+    assert.throws(function() {
+      new Plugin()
+    });
+  });
+
   it("should NOT fail if applied as plugin", function() {
-    var plugin = new Plugin();
+    var plugin = new Plugin({ moduleName: moduleName });
 
     assert.doesNotThrow(function() {
       webpack({
@@ -29,7 +37,7 @@ describe("persistgraphql-webpack-plugin", function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({filename: 'output_queries.json'});
+    var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json' });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -71,7 +79,7 @@ describe("persistgraphql-webpack-plugin", function() {
                   'var query = gql`countUpdated { amount }`;'
     });
 
-    var plugin = new Plugin({filename: 'output_queries.json'});
+    var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json' });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -110,7 +118,7 @@ describe("persistgraphql-webpack-plugin", function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var providerPlugin = new Plugin();
+    var providerPlugin = new Plugin({ moduleName: moduleName });
     var providerCompiler = webpack({
       plugins: [virtualProviderPlugin, providerPlugin],
       module: {
@@ -141,7 +149,11 @@ describe("persistgraphql-webpack-plugin", function() {
         new VirtualPlugin({
           'entry.js': 'require("persisted_queries.json");'
         }),
-        new Plugin({filename: 'output_queries.json', provider: providerPlugin})
+        new Plugin({
+          moduleName: moduleName,
+          filename: 'output_queries.json',
+          provider: providerPlugin
+        })
       ],
       entry: './entry.js'
     });
