@@ -3,6 +3,8 @@ var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
 var path = require('path');
 var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers').addTypenameTransformer;
+var graphql = require('graphql');
+var _ = require('lodash');
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
@@ -83,11 +85,30 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
         });
 
         if (graphQLString) {
-          var queries = new ExtractGQL({inputFilePath: '',
+          var extractor = new ExtractGQL({inputFilePath: '',
             queryTransformers: self.options.addTypename ? [function(doc) {
             return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
-          }] : undefined})
-            .createOutputMapFromString(graphQLString);
+          }] : undefined});
+
+          var doc = graphql.parse(graphQLString);
+          var docMap = graphql.separateOperations(doc);
+          var queries = {};
+          Object.keys(docMap).forEach(function (operationName) {
+            var document = docMap[operationName];
+            var fragmentMap = {};
+            for (var i = document.definitions.length - 1; i >= 0; i--) {
+              var def = document.definitions[i];
+              if (def.kind === 'FragmentDefinition') {
+                if (!fragmentMap[def.name.value]) {
+                  fragmentMap[def.name.value] = true;
+                } else {
+                  document.definitions.splice(i, 1);
+                }
+              }
+            }
+            queries = _.merge(queries, extractor.createMapFromDocument(document));
+          });
+
           Object.keys(queries).forEach(function(query) {
             allQueries.push(query);
           });
