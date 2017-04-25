@@ -85,7 +85,9 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
 
         if (graphQLString) {
           var queries = new ExtractGQL({inputFilePath: '',
-            queryTransformers: self.options.addTypename ? [addTypenameTransformer] : undefined})
+            queryTransformers: self.options.addTypename ? [function(doc) {
+            return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+          }] : undefined})
             .createOutputMapFromString(graphQLString);
           Object.keys(queries).forEach(function(query) {
             allQueries.push(query);
@@ -104,7 +106,8 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           self._queryMap = newQueryMap;
           self.virtualModules.writeModule(self.options.moduleName, self._queryMap);
           compilation.modules.forEach(function(module) {
-            if (module.resource === path.join(compiler.context, self.options.moduleName)) {
+            if (module.resource === self.options.moduleName ||
+              module.resource === path.resolve(path.join(compiler.context, self.options.moduleName))) {
               module._source = new OriginalSource("module.exports = " + self._queryMap + ";", module.resource);
             }
           });
