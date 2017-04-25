@@ -1,5 +1,4 @@
 var VirtualModulesPlugin = require('webpack-virtual-modules');
-var OriginalSource = require('webpack-sources').OriginalSource;
 var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
 var path = require('path');
@@ -108,7 +107,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           compilation.modules.forEach(function(module) {
             if (module.resource === self.options.moduleName ||
               module.resource === path.resolve(path.join(compiler.context, self.options.moduleName))) {
-              module._source = new OriginalSource("module.exports = " + self._queryMap + ";", module.resource);
+              module._source._value = "module.exports = " + self._queryMap + ";";
             }
           });
         }
