@@ -41,29 +41,25 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
   self.virtualModules.apply(compiler);
   self._compiler = compiler;
 
-  if (!self.options.provider) {
-    var hasPlaceholder = false;
-  }
-  compiler.plugin('after-resolvers', function() {
-    compiler.resolvers.normal.plugin('before-resolve', function(request, callback) {
-      var requestPath = path.resolve(path.join(request.path, request.request));
-      if (requestPath.indexOf(self.options.moduleName) >= 0) {
-        if (self.options.provider) {
-          if (self._queryMap) {
-            callback();
-          } else {
-            self._callback = callback;
-          }
-        } else {
-          if (!hasPlaceholder) {
-            self._queryMap = '{}';
-            self.virtualModules.writeModule(self.options.moduleName, '{}');
-            hasPlaceholder = true;
-          }
-          callback();
+  compiler.plugin('compilation', function() {
+    if (!self._queryMap) {
+      self.virtualModules.writeModule(self.options.moduleName, '{}');
+    }
+  });
+
+  compiler.plugin('normal-module-factory', function(nmf) {
+    nmf.plugin('after-resolve', function(result, callback) {
+      if (!result) {
+        return callback();
+      }
+      if (self.options.provider &&
+          result.request.indexOf(self.options.moduleName) >= 0 &&
+          !self._queryMap) {
+        self._callback = function() {
+          return callback(null, result);
         }
       } else {
-        callback();
+        return callback(null, result);
       }
     });
   });

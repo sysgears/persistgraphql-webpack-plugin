@@ -11,7 +11,7 @@ Webpack Plugin for working with Persisted GraphQL Queries with Hot Code Replacem
 npm install --save-dev persistgraphql-webpack-plugin
 ```
 
-## Usage
+## Usage with Webpack 2
 
 ### When Webpack is used for front-end only
 
@@ -86,6 +86,123 @@ var frontendWebpackConfig = {
         test: /\.(graphql|gql)$/,
         use: [
           'graphql-tag/loader', 
+          // Should come AFTER graphql-tag/loader
+          'persistgraphql-webpack-plugin/graphql-loader'
+        ]
+      },
+    ]
+  }
+  
+  plugins: [
+    frontendPersistPlugin
+  ]
+};
+
+var backendWebpackConfig = {
+  // ...
+  plugins: [
+    backendPersistPlugin
+  ]
+}
+```
+
+Both in the source code of front-end and back-end persisted GraphQL queries will be injected 
+as a virtual module `node_modules/persisted_queries.json`. This module will be updated if queries added or changed.
+
+```js
+var queryMap = require('persisted_queries.json');
+console.log(queryMap);
+```
+
+## Usage with Webpack 1
+
+### When Webpack is used for front-end only
+
+Sample Webpack config:
+
+```js
+var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
+
+module.exports = {
+  module: {
+    loaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: [
+          'babel?' + JSON.stringify(
+            {
+              cacheDirectory: __DEV__,
+              presets: ['es2015', 'es2017', 'react'],
+              plugins: ['transform-runtime', 'transform-decorators-legacy', 'transform-class-properties']
+            }
+          ),
+          // Should come AFTER babel-loader
+          'persistgraphql-webpack-plugin/js-loader'
+        ],
+        exclude: /(node_modules|bower_components)/
+      },
+      {
+        test: /\.(graphql|gql)$/,
+        exclude: /node_modules/,
+        loaders: [
+          'graphql-tag/loader',
+          // Should come AFTER graphql-tag/loader
+          'persistgraphql-webpack-plugin/graphql-loader'
+        ]
+      },
+    ]
+  }
+  
+  plugins: [
+    new PersistGraphQLPlugin({filename: 'persisted_queries.json', 
+        moduleName: path.resolve('node_modules/persisted_queries.json')})
+  ]
+};
+```
+
+In the source code of front-end persisted GraphQL queries will be injected 
+as a virtual module `persisted_queries.json`. This module will be updated
+if queries added or changed. Also asset with name `persisted_queries.json` will be generated 
+during compilation and written to output directory.
+
+```js
+var queryMap = require('persisted_queries.json');
+console.log(queryMap);
+```
+
+### When Webpack is used both for back-end and front-end
+
+```js
+var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
+
+const moduleName = path.resolve('node_modules/persisted_queries.json');
+const frontendPersistPlugin = new PersistGraphQLPlugin({ moduleName });
+const backendPersistPlugin = 
+    new PersistGraphQLPlugin({ provider: clientPersistPlugin, moduleName });
+
+var frontendWebpackConfig = {
+  module: {
+    loaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: [
+          'babel?' + JSON.stringify(
+            {
+              cacheDirectory: __DEV__,
+              presets: ['es2015', 'es2017', 'react'],
+              plugins: ['transform-runtime', 'transform-decorators-legacy', 'transform-class-properties']
+            }
+          ),
+          // Should come AFTER babel-loader
+          'persistgraphql-webpack-plugin/js-loader'
+        ],
+        exclude: /(node_modules|bower_components)/
+      },
+      {
+        test: /\.(graphql|gql)$/,
+        exclude: /node_modules/,
+        loaders: [
+          'graphql-tag/loader',
           // Should come AFTER graphql-tag/loader
           'persistgraphql-webpack-plugin/graphql-loader'
         ]
