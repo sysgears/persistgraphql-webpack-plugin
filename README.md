@@ -1,7 +1,7 @@
 # PersistGraphQL Webpack Plugin
 
 [![Build Status](https://travis-ci.org/sysgears/persistgraphql-webpack-plugin.svg?branch=master)](https://travis-ci.org/sysgears/persistgraphql-webpack-plugin)
-[![Greenkeeper badge](https://badges.greenkeeper.io/sysgears/persistgraphql-webpack-plugin.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/sysgears/persistgraphql-webpack-plugin.svg)](https://greenkeeper.io/) [![Twitter Follow](https://img.shields.io/twitter/follow/sysgears.svg?style=social)](https://twitter.com/sysgears)
 
 Webpack Plugin for working with Persisted GraphQL Queries with Hot Code Replacement support.
 
