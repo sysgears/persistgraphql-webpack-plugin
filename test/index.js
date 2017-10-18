@@ -33,7 +33,7 @@ describe("persistgraphql-webpack-plugin", function() {
       'entry.js': 'var gql = require("graphql-tag");\n' +
                   'require("./example.graphql");\n' +
                   'require("persisted_queries.json");\n' +
-                  'var query = gql`countUpdated { amount }`;',
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
       'example.graphql': 'query getCount { count { amount } }'
     });
 
@@ -66,8 +66,54 @@ describe("persistgraphql-webpack-plugin", function() {
 
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
+      assert.equal(
+        fs.readFileSync(path.resolve('output_queries.json')).toString(),
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}'
+      );
+      done();
+    });
+  });
+
+  it("should add typename to queries from js and graphql files", function(done) {
+    var virtualPlugin = new VirtualPlugin({
+      'entry.js': 'var gql = require("graphql-tag");\n' +
+      'require("./example.graphql");\n' +
+      'require("persisted_queries.json");\n' +
+      'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
+      'example.graphql': 'query getCount { count { amount } }'
+    });
+
+    var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json', addTypename: true });
+
+    var compiler = webpack({
+      plugins: [virtualPlugin, plugin],
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            use: 'js-loader'
+          },
+          {
+            test: /\.graphql$/,
+            use: 'graphql-loader'
+          }
+        ]
+      },
+      resolveLoader: {
+        alias: {
+          'graphql-loader': path.resolve(path.join(__dirname, '../graphql-loader.js')),
+          'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
+        }
+      },
+      entry: './entry.js'
+    });
+
+    compiler.outputFileSystem = new MemoryFileSystem();
+
+    compiler.run(function() {
+      var fs = compiler.outputFileSystem;
       assert.equal(fs.readFileSync(path.resolve('output_queries.json')).toString(),
-        '{"countUpdated { amount }":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}');
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n    __typename\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n    __typename\\n  }\\n}\\n":2}');
       done();
     });
   });
@@ -76,7 +122,7 @@ describe("persistgraphql-webpack-plugin", function() {
     var virtualPlugin = new VirtualPlugin({
       'entry.js': 'var gql = require("graphql-tag");\n' +
                   'require("persisted_queries.json");\n' +
-                  'var query = gql`countUpdated { amount }`;'
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;'
     });
 
     var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json' });
@@ -104,7 +150,7 @@ describe("persistgraphql-webpack-plugin", function() {
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
       assert.equal(fs.readFileSync(path.resolve('output_queries.json')).toString(),
-        '{"countUpdated { amount }":1}');
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1}');
       done();
     });
   });
@@ -114,7 +160,7 @@ describe("persistgraphql-webpack-plugin", function() {
       'entry.js': 'var gql = require("graphql-tag");\n' +
                   'require("./example.graphql");\n' +
                   'require("persisted_queries.json");\n' +
-                  'var query = gql`countUpdated { amount }`;',
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
       'example.graphql': 'query getCount { count { amount } }'
     });
 
@@ -163,7 +209,7 @@ describe("persistgraphql-webpack-plugin", function() {
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
       assert.equal(fs.readFileSync(path.resolve('output_queries.json')).toString(),
-        '{"countUpdated { amount }":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}');
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}');
       done();
     });
 

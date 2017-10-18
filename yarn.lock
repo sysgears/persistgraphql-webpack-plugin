@@ -2294,8 +2294,8 @@ performance-now@^0.2.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-0.2.0.tgz#33ef30c5c77d4ea21c5a53869d91b56d8f2555e5"
 
 persistgraphql@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/persistgraphql/-/persistgraphql-0.3.5.tgz#9186abc34132acec52cdb575151bc196340abe71"
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/persistgraphql/-/persistgraphql-0.3.10.tgz#9abbeb7222eead58bc1f74cc9e74f396bfcdc9e1"
   dependencies:
     apollo-client "^1.1"
     graphql ">=0.9.4 <0.11"
@@ -3014,8 +3014,8 @@ webpack-virtual-modules@^0.1.7:
     debug "^2.6.8"
 
 webpack@^3.1.0:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-3.5.5.tgz#3226f09fc8b3e435ff781e7af34f82b68b26996c"
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-3.8.1.tgz#b16968a81100abe61608b0153c9159ef8bb2bd83"
   dependencies:
     acorn "^5.0.0"
     acorn-dynamic-import "^2.0.0"

@@ -74,7 +74,9 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
             var queries = module._graphQLQueries;
             if (queries) {
               Object.keys(queries).forEach(function(query) {
-                allQueries.push(query);
+                allQueries.push(self.options.addTypename
+                  ? graphql.print(addTypenameTransformer(JSON.parse(JSON.stringify(graphql.parse(query)))))
+                  : query);
               });
             } else if (module._graphQLString) {
               graphQLString += module._graphQLString;
@@ -84,8 +86,8 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           if (graphQLString) {
             var extractor = new ExtractGQL({inputFilePath: '',
               queryTransformers: self.options.addTypename ? [function(doc) {
-              return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
-            }] : undefined});
+                return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+              }] : undefined});
 
             var doc = graphql.parse(graphQLString);
             var docMap = graphql.separateOperations(doc);
@@ -111,12 +113,12 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
             });
           }
 
-          var mapObj = {};
-          var id = 1;
+          var finalExtractor = new ExtractGQL({inputFilePath: '',
+            queryTransformers: self.options.addTypename ? [function(doc) {
+              return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+            }] : undefined});
 
-          allQueries.sort().forEach(function(query) {
-            mapObj[query] = id++;
-          });
+          var mapObj = finalExtractor.createOutputMapFromString(allQueries.join('\n'));
 
           var newQueryMap = JSON.stringify(mapObj);
           if (newQueryMap !== self._queryMap) {
