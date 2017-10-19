@@ -113,12 +113,16 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
             });
           }
 
-          var finalExtractor = new ExtractGQL({inputFilePath: '',
-            queryTransformers: self.options.addTypename ? [function(doc) {
-              return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
-            }] : undefined});
+          var mapObj;
 
-          var mapObj = finalExtractor.createOutputMapFromString(allQueries.join('\n'));
+          if (allQueries.length) {
+            var finalExtractor = new ExtractGQL({inputFilePath: '',
+              queryTransformers: self.options.addTypename ? [function(doc) {
+                return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+              }] : undefined});
+
+            mapObj = finalExtractor.createOutputMapFromString(allQueries.join('\n'));
+          }
 
           var newQueryMap = JSON.stringify(mapObj);
           if (newQueryMap !== self._queryMap) {
