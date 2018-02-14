@@ -32,12 +32,12 @@ describe("persistgraphql-webpack-plugin", function() {
     var virtualPlugin = new VirtualPlugin({
       'entry.js': 'var gql = require("graphql-tag");\n' +
                   'require("./example.graphql");\n' +
-                  'require("persisted_queries.json");\n' +
-                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;\n' +
+                  'module.exports = require("persisted_queries.json");\n',
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json' });
+    var plugin = new Plugin({ moduleName: moduleName });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -49,7 +49,7 @@ describe("persistgraphql-webpack-plugin", function() {
           },
           {
             test: /\.graphql$/,
-            use: 'graphql-loader'
+            use: ['graphql-tag/loader', 'graphql-loader']
           }
         ]
       },
@@ -59,15 +59,17 @@ describe("persistgraphql-webpack-plugin", function() {
           'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
         }
       },
-      entry: './entry.js'
+      entry: './entry.js',
+      output: {
+        path: '/'
+      }
     });
 
     compiler.outputFileSystem = new MemoryFileSystem();
 
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
-      assert.equal(
-        fs.readFileSync(path.resolve('output_queries.json')).toString(),
+      assert.equal(JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
         '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}'
       );
       done();
@@ -78,12 +80,12 @@ describe("persistgraphql-webpack-plugin", function() {
     var virtualPlugin = new VirtualPlugin({
       'entry.js': 'var gql = require("graphql-tag");\n' +
       'require("./example.graphql");\n' +
-      'require("persisted_queries.json");\n' +
-      'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
+      'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;\n' +
+      'module.exports = require("persisted_queries.json");\n',
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json', addTypename: true });
+    var plugin = new Plugin({ moduleName: moduleName, addTypename: true });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -95,7 +97,7 @@ describe("persistgraphql-webpack-plugin", function() {
           },
           {
             test: /\.graphql$/,
-            use: 'graphql-loader'
+            use: ['graphql-tag/loader', 'graphql-loader']
           }
         ]
       },
@@ -105,24 +107,27 @@ describe("persistgraphql-webpack-plugin", function() {
           'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
         }
       },
-      entry: './entry.js'
+      entry: './entry.js',
+      output: {
+        path: '/'
+      }
     });
 
     compiler.outputFileSystem = new MemoryFileSystem();
 
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
-      assert.equal(fs.readFileSync(path.resolve('output_queries.json')).toString(),
+      assert.equal(JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
         '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n    __typename\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n    __typename\\n  }\\n}\\n":2}');
       done();
     });
   });
 
-  it("should extract queries from js files only", function(done) {
+  it("should extract queries from js files only into output json file", function(done) {
     var virtualPlugin = new VirtualPlugin({
       'entry.js': 'var gql = require("graphql-tag");\n' +
-                  'require("persisted_queries.json");\n' +
-                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;'
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;\n' +
+                  'module.exports = require("persisted_queries.json");\n'
     });
 
     var plugin = new Plugin({ moduleName: moduleName, filename: 'output_queries.json' });
@@ -159,8 +164,8 @@ describe("persistgraphql-webpack-plugin", function() {
     var virtualProviderPlugin = new VirtualPlugin({
       'entry.js': 'var gql = require("graphql-tag");\n' +
                   'require("./example.graphql");\n' +
-                  'require("persisted_queries.json");\n' +
-                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;',
+                  'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;\n' +
+                  'module.exports = require("persisted_queries.json");\n',
       'example.graphql': 'query getCount { count { amount } }'
     });
 
@@ -185,7 +190,10 @@ describe("persistgraphql-webpack-plugin", function() {
           'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
         }
       },
-      entry: './entry.js'
+      entry: './entry.js',
+      output: {
+        path: '/'
+      }
     });
 
     providerCompiler.outputFileSystem = new MemoryFileSystem();
@@ -193,22 +201,24 @@ describe("persistgraphql-webpack-plugin", function() {
     var compiler = webpack({
       plugins: [
         new VirtualPlugin({
-          'entry.js': 'require("persisted_queries.json");'
+          'entry.js': 'module.exports = require("persisted_queries.json");'
         }),
         new Plugin({
           moduleName: moduleName,
-          filename: 'output_queries.json',
           provider: providerPlugin
         })
       ],
-      entry: './entry.js'
+      entry: './entry.js',
+      output: {
+        path: '/'
+      }
     });
 
     compiler.outputFileSystem = new MemoryFileSystem();
 
     compiler.run(function() {
       var fs = compiler.outputFileSystem;
-      assert.equal(fs.readFileSync(path.resolve('output_queries.json')).toString(),
+      assert.equal(JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
         '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}');
       done();
     });

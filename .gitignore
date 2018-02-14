@@ -1,7 +1,10 @@
-.tmp
-lib
-node_modules
-dist
+/.vscode
+/.history
+/.tmp
+/.idea
+/lib
+/node_modules
+/dist
 .nyc_output
 .eslintcache
 npm-debug.log
