@@ -77,8 +77,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           compilation.modules.forEach(function(module) {
             if (!self.options.excludeRegex.test(module.resource)) {
               if (self.options.graphqlRegex.test(module.resource)) {
-                graphQLString += self.options.addTypename ? graphql.print(addTypenameTransformer(eval(module._source._value)))
-                  : graphql.print(eval(module._source._value));
+                graphQLString += graphql.print(eval(module._source._value));
               } else if (self.options.jsRegex.test(module.resource)) {
                 var literalContents = ExtractFromJs.findTaggedTemplateLiteralsInJS(module._source._value, 'gql');
                 var queryList = literalContents.map(ExtractFromJs.eliminateInterpolations);
