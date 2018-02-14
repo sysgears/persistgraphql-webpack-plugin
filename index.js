@@ -1,6 +1,7 @@
 var VirtualModulesPlugin = require('webpack-virtual-modules');
 var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
+var ExtractFromJs = require("persistgraphql/lib/src/extractFromJS");
 var path = require('path');
 var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers').addTypenameTransformer;
 var graphql = require('graphql');
@@ -15,6 +16,9 @@ function PersistGraphQLPlugin(options) {
   } else {
     this._listeners = [];
   }
+  this.options.excludeRegex = this.options.excludeRegex || /[\\/]node_modules[\\/]/;
+  this.options.graphqlRegex = this.options.graphqlRegex || /(.graphql|.gql)$/;
+  this.options.jsRegex = this.options.jsRegex || /(.jsx?|.tsx?)$/;
   this.virtualModules = new VirtualModulesPlugin();
 }
 
@@ -71,15 +75,20 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           var graphQLString = '';
           var allQueries = [];
           compilation.modules.forEach(function(module) {
-            var queries = module._graphQLQueries;
-            if (queries) {
-              Object.keys(queries).forEach(function(query) {
-                allQueries.push(self.options.addTypename
-                  ? graphql.print(addTypenameTransformer(JSON.parse(JSON.stringify(graphql.parse(query)))))
-                  : query);
-              });
-            } else if (module._graphQLString) {
-              graphQLString += module._graphQLString;
+            if (!self.options.excludeRegex.test(module.resource)) {
+              if (self.options.graphqlRegex.test(module.resource)) {
+                graphQLString += self.options.addTypename ? graphql.print(addTypenameTransformer(eval(module._source._value)))
+                  : graphql.print(eval(module._source._value));
+              } else if (self.options.jsRegex.test(module.resource)) {
+                var literalContents = ExtractFromJs.findTaggedTemplateLiteralsInJS(module._source._value, 'gql');
+                var queryList = literalContents.map(ExtractFromJs.eliminateInterpolations);
+                for (var idx = 0; idx < queryList.length; idx++) {
+                  var query = queryList[idx];
+                  allQueries.push(self.options.addTypename
+                    ? graphql.print(addTypenameTransformer(JSON.parse(JSON.stringify(graphql.parse(query)))))
+                    : query);
+                }
+              }
             }
           });
 

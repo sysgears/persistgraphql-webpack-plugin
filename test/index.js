@@ -44,20 +44,10 @@ describe("persistgraphql-webpack-plugin", function() {
       module: {
         rules: [
           {
-            test: /\.js$/,
-            use: 'js-loader'
-          },
-          {
             test: /\.graphql$/,
-            use: ['graphql-tag/loader', 'graphql-loader']
+            use: 'graphql-tag/loader'
           }
         ]
-      },
-      resolveLoader: {
-        alias: {
-          'graphql-loader': path.resolve(path.join(__dirname, '../graphql-loader.js')),
-          'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
-        }
       },
       entry: './entry.js',
       output: {
@@ -92,20 +82,10 @@ describe("persistgraphql-webpack-plugin", function() {
       module: {
         rules: [
           {
-            test: /\.js$/,
-            use: 'js-loader'
-          },
-          {
             test: /\.graphql$/,
-            use: ['graphql-tag/loader', 'graphql-loader']
+            use: 'graphql-tag/loader'
           }
         ]
-      },
-      resolveLoader: {
-        alias: {
-          'graphql-loader': path.resolve(path.join(__dirname, '../graphql-loader.js')),
-          'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
-        }
       },
       entry: './entry.js',
       output: {
@@ -134,19 +114,6 @@ describe("persistgraphql-webpack-plugin", function() {
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
-      module: {
-        rules: [
-          {
-            test: /\.js$/,
-            use: 'js-loader'
-          }
-        ]
-      },
-      resolveLoader: {
-        alias: {
-          'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
-        }
-      },
       entry: './entry.js'
     });
 
@@ -175,20 +142,10 @@ describe("persistgraphql-webpack-plugin", function() {
       module: {
         rules: [
           {
-            test: /\.js$/,
-            use: 'js-loader'
-          },
-          {
             test: /\.graphql$/,
-            use: 'graphql-loader'
+            use: 'graphql-tag/loader'
           }
         ]
-      },
-      resolveLoader: {
-        alias: {
-          'graphql-loader': path.resolve(path.join(__dirname, '../graphql-loader.js')),
-          'js-loader': path.resolve(path.join(__dirname, '../js-loader.js'))
-        }
       },
       entry: './entry.js',
       output: {
