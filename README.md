@@ -182,8 +182,8 @@ new PersistGraphQLPlugin(options: object)
 |**`addTypename`**|`{Boolean}`|Apply a query transformation to the query documents, adding the __typename field at every level of the query. You must pass this option if your client code uses this query transformation.|
 |**`provider`**|`{Object}`|Instance of plugin running on another webpack instance which will provide persisted GraphQL queries|
 |**`excludeRegex`**|`{RegExp}`|RegExp to match file path that will be excluded from processing by the plugin, default: `/[\\/]node_modules[\\/]/`|
-|**`graphqlRegex`**|`{RegExp}`|RegExp to match files loaded by `graphql-tag/loader` that should be processed by the plugin, default: `/(.graphql|.gql)$/`|
-|**`jsRegex`**|`{RegExp}`|RegExp to match js files that have embedded GraphQL queries marked with `gql` tag, default: `/(.jsx?|.tsx?)$/`|
+|**`graphqlRegex`**|`{RegExp}`|RegExp to match files loaded by `graphql-tag/loader` that should be processed by the plugin, default: `/(.graphql\|.gql)$/`|
+|**`jsRegex`**|`{RegExp}`|RegExp to match js files that have embedded GraphQL queries marked with `gql` tag, default: `/(.jsx?\|.tsx?)$/`|
 
 ## License
 Copyright © 2017 [SysGears INC]. This source code is licensed under the [MIT] license.
