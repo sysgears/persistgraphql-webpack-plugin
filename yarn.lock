@@ -730,6 +730,12 @@ debug@2.6.8, debug@^2.2.0, debug@^2.6.3, debug@^2.6.8:
   dependencies:
     ms "2.0.0"
 
+debug@^3.0.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
+  dependencies:
+    ms "2.0.0"
+
 decamelize@^1.0.0, decamelize@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
@@ -3007,11 +3013,11 @@ webpack-sources@^1.0.1:
     source-list-map "^2.0.0"
     source-map "~0.5.3"
 
-webpack-virtual-modules@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/webpack-virtual-modules/-/webpack-virtual-modules-0.1.7.tgz#b8b06c6b0d63183be5dc450f5d04d54d29908a53"
+webpack-virtual-modules@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/webpack-virtual-modules/-/webpack-virtual-modules-0.1.10.tgz#2039529cbf1007e19f6e897c8d35721cc2c41f68"
   dependencies:
-    debug "^2.6.8"
+    debug "^3.0.0"
 
 webpack@^3.1.0:
   version "3.8.1"
