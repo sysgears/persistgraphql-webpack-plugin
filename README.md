@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/sysgears/persistgraphql-webpack-plugin.svg?branch=master)](https://travis-ci.org/sysgears/persistgraphql-webpack-plugin)
 [![Greenkeeper badge](https://badges.greenkeeper.io/sysgears/persistgraphql-webpack-plugin.svg)](https://greenkeeper.io/) [![Twitter Follow](https://img.shields.io/twitter/follow/sysgears.svg?style=social)](https://twitter.com/sysgears)
 
-Webpack Plugin for working with Persisted GraphQL Queries with Hot Code Replacement support.
+Webpack Plugin that gathers all the GraphQL queries/mutation/subscriptions both from `.graphql` files and from embedded queries in JavaScript/TypeScript source code. It generates `virtual` module `persisted_queries.json` with all the queries as a map object (query -> id) available for `require` from any place within source code and output file on file system with all the queries.
 
 ## Installation
 
