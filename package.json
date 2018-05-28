@@ -10,8 +10,9 @@
       "cross-env NODE_ENV=coverage nyc --check-coverage --lines 96 --branches 80 npm run tests",
     "tests": "mocha",
     "tests:watch": "cross-env mocha -w",
-    "tests:watch:debug": "cross-env DEBUG=webpack-virtual-modules mocha -w"
-  },
+    "tests:watch:debug": "cross-env DEBUG=webpack-virtual-modules mocha -w",
+    "precommit": "lint-staged"
+   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sysgears/persistgraphql-webpack-plugin.git"
