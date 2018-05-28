@@ -74,7 +74,20 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           compilation.modules.forEach(function(module) {
             if (!self.options.excludeRegex.test(module.resource)) {
               if (self.options.graphqlRegex.test(module.resource)) {
-                graphQLString += graphql.print(eval(module._source._value));
+                // Workaround for `graphql-persisted-document-loader`
+                // It does not generate eval-friendly source code at the moment
+                var sourceLines = module._source._value.split(/\r\n|\r|\n/);
+                if (
+                  sourceLines
+                    .slice(-1)
+                    .pop()
+                    .indexOf('doc.documentId') === 0
+                ) {
+                  // Swap last two lines of source code
+                  var len = sourceLines.length;
+                  sourceLines = sourceLines.slice(0, len - 2).concat([sourceLines[len - 1], sourceLines[len - 2]]);
+                }
+                graphQLString += graphql.print(eval(sourceLines.join('\n')));
               } else if (self.options.jsRegex.test(module.resource)) {
                 var literalContents = ExtractFromJs.findTaggedTemplateLiteralsInJS(module._source._value, 'gql');
                 var queryList = literalContents.map(ExtractFromJs.eliminateInterpolations);
