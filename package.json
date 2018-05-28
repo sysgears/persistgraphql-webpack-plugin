@@ -6,28 +6,29 @@
   "scripts": {
     "lint": "eslint --fix .",
     "posttest": "npm run lint",
-    "test": "NODE_ENV=coverage nyc --check-coverage --lines 96 --branches 80 npm run tests",
+    "test":
+      "cross-env NODE_ENV=coverage nyc --check-coverage --lines 96 --branches 80 npm run tests",
     "tests": "mocha",
-    "tests:watch": "DEBUG=webpack-virtual-modules mocha -w"
+    "tests:watch": "cross-env mocha -w",
+    "tests:watch:debug": "cross-env DEBUG=webpack-virtual-modules mocha -w"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sysgears/persistgraphql-webpack-plugin.git"
   },
-  "keywords": [
-    "webpack-plugin",
-    "graphql",
-    "apollo-client"
-  ],
+  "keywords": ["webpack-plugin", "graphql", "apollo-client"],
   "author": "SysGears INC",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sysgears/persistgraphql-webpack-plugin/issues"
   },
-  "homepage": "https://github.com/sysgears/persistgraphql-webpack-plugin#readme",
+  "homepage":
+    "https://github.com/sysgears/persistgraphql-webpack-plugin#readme",
   "devDependencies": {
     "chai": "^4.0.0",
+    "cross-env": "^5.1.6",
     "eslint": "^4.1.0",
+    "graphql-persisted-document-loader": "^1.0.1",
     "memory-fs": "^0.4.1",
     "mocha": "^3.2.0",
     "nyc": "^11.0.2",
@@ -37,8 +38,6 @@
     "persistgraphql": "^0.3.5",
     "webpack-virtual-modules": "^0.1.10"
   },
-  "files": [
-    "*.js"
-  ],
+  "files": ["*.js"],
   "greenkeeper": {}
 }
