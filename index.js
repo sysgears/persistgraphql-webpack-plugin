@@ -1,7 +1,7 @@
 var VirtualModulesPlugin = require('webpack-virtual-modules');
 var RawSource = require('webpack-sources').RawSource;
 var ExtractGQL = require('persistgraphql/lib/src/ExtractGQL').ExtractGQL;
-var ExtractFromJs = require("persistgraphql/lib/src/extractFromJS");
+var ExtractFromJs = require('persistgraphql/lib/src/extractFromJS');
 var path = require('path');
 var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers').addTypenameTransformer;
 var graphql = require('graphql');
@@ -9,8 +9,7 @@ var _ = require('lodash');
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
-  if (!this.options.moduleName)
-    throw new Error("moduleName option is required for PersistGraphQLPlugin");
+  if (!this.options.moduleName) throw new Error('moduleName option is required for PersistGraphQLPlugin');
   if (this.options.provider) {
     this.options.provider._addListener(this);
   } else {
@@ -56,12 +55,10 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
       if (!result) {
         return callback();
       }
-      if (self.options.provider &&
-          result.request.indexOf(self.options.moduleName) >= 0 &&
-          !self._queryMap) {
+      if (self.options.provider && result.request.indexOf(self.options.moduleName) >= 0 && !self._queryMap) {
         self._callback = function() {
           return callback(null, result);
-        }
+        };
       } else {
         return callback(null, result);
       }
@@ -83,24 +80,32 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
                 var queryList = literalContents.map(ExtractFromJs.eliminateInterpolations);
                 for (var idx = 0; idx < queryList.length; idx++) {
                   var query = queryList[idx];
-                  allQueries.push(self.options.addTypename
-                    ? graphql.print(addTypenameTransformer(JSON.parse(JSON.stringify(graphql.parse(query)))))
-                    : query);
+                  allQueries.push(
+                    self.options.addTypename
+                      ? graphql.print(addTypenameTransformer(JSON.parse(JSON.stringify(graphql.parse(query)))))
+                      : query
+                  );
                 }
               }
             }
           });
 
           if (graphQLString) {
-            var extractor = new ExtractGQL({inputFilePath: '',
-              queryTransformers: self.options.addTypename ? [function(doc) {
-                return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
-              }] : undefined});
+            var extractor = new ExtractGQL({
+              inputFilePath: '',
+              queryTransformers: self.options.addTypename
+                ? [
+                    function(doc) {
+                      return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+                    }
+                  ]
+                : undefined
+            });
 
             var doc = graphql.parse(graphQLString);
             var docMap = graphql.separateOperations(doc);
             var queries = {};
-            Object.keys(docMap).forEach(function (operationName) {
+            Object.keys(docMap).forEach(function(operationName) {
               var document = docMap[operationName];
               var fragmentMap = {};
               for (var i = document.definitions.length - 1; i >= 0; i--) {
@@ -124,10 +129,16 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
           var mapObj;
 
           if (allQueries.length) {
-            var finalExtractor = new ExtractGQL({inputFilePath: '',
-              queryTransformers: self.options.addTypename ? [function(doc) {
-                return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
-              }] : undefined});
+            var finalExtractor = new ExtractGQL({
+              inputFilePath: '',
+              queryTransformers: self.options.addTypename
+                ? [
+                    function(doc) {
+                      return addTypenameTransformer(JSON.parse(JSON.stringify(doc)));
+                    }
+                  ]
+                : undefined
+            });
 
             mapObj = finalExtractor.createOutputMapFromString(allQueries.join('\n'));
           }
@@ -137,13 +148,17 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
             self._queryMap = newQueryMap;
             self.virtualModules.writeModule(self.options.moduleName, self._queryMap);
             compilation.modules.forEach(function(module) {
-              if (module.resource === self.options.moduleName ||
-                module.resource === path.resolve(path.join(compiler.context, self.options.moduleName))) {
-                module._source._value = "module.exports = " + self._queryMap + ";";
+              if (
+                module.resource === self.options.moduleName ||
+                module.resource === path.resolve(path.join(compiler.context, self.options.moduleName))
+              ) {
+                module._source._value = 'module.exports = ' + self._queryMap + ';';
               }
             });
           }
-          self._listeners.forEach(function(listener) { listener._notify(self._queryMap); });
+          self._listeners.forEach(function(listener) {
+            listener._notify(self._queryMap);
+          });
         });
       }
     });

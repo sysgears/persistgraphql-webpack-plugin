@@ -4,7 +4,7 @@
   "description": "PersistGraphQL Webpack Plugin",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --fix .",
+    "lint": "eslint --fix . --ext js --ext json",
     "posttest": "npm run lint",
     "test":
       "cross-env NODE_ENV=coverage nyc --check-coverage --lines 96 --branches 80 npm run tests",
@@ -27,11 +27,18 @@
   "devDependencies": {
     "chai": "^4.0.0",
     "cross-env": "^5.1.6",
-    "eslint": "^4.1.0",
+    "eslint": "^4.13.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-mocha": "^5.0.0",
+    "eslint-plugin-prettier": "^2.4.0",
     "graphql-persisted-document-loader": "^1.0.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^4.1.3",
     "memory-fs": "^0.4.1",
     "mocha": "^3.2.0",
     "nyc": "^11.0.2",
+    "prettier": "^1.6.1",
     "webpack": "^3.1.0"
   },
   "dependencies": {
@@ -39,5 +46,11 @@
     "webpack-virtual-modules": "^0.1.10"
   },
   "files": ["*.js"],
+  "lint-staged": {
+    "*.{js,jsx,json}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
   "greenkeeper": {}
 }
