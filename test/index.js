@@ -38,7 +38,47 @@ describe('persistgraphql-webpack-plugin', function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({ moduleName: moduleName });
+    var plugin = new Plugin({ moduleName: moduleName, addTypename: false });
+
+    var compiler = webpack({
+      plugins: [virtualPlugin, plugin],
+      module: {
+        rules: [
+          {
+            test: /\.graphql$/,
+            use: 'graphql-tag/loader'
+          }
+        ]
+      },
+      entry: './entry.js',
+      output: {
+        path: '/'
+      }
+    });
+
+    compiler.outputFileSystem = new MemoryFileSystem();
+
+    compiler.run(function() {
+      var fs = compiler.outputFileSystem;
+      assert.equal(
+        JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":"3f99fddff5dfe1ff4984f400cf62662a391acb0812ff584e8080e9d489017e50","query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":"4722dce4b669412291b70e2bfd2d6471fd55e599775a44c1a2d2721352583733"}'
+      );
+      done();
+    });
+  });
+
+  it('should generate counter ids when hashQuery is false', function(done) {
+    var virtualPlugin = new VirtualPlugin({
+      'entry.js':
+        'var gql = require("graphql-tag");\n' +
+        'require("./example.graphql");\n' +
+        'var query = gql`subscription onCounterUpdated { counterUpdated { amount } }`;\n' +
+        'module.exports = require("persisted_queries.json");\n',
+      'example.graphql': 'query getCount { count { amount } }'
+    });
+
+    var plugin = new Plugin({ moduleName: moduleName, addTypename: false, hashQuery: false });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -78,7 +118,7 @@ describe('persistgraphql-webpack-plugin', function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({ moduleName: moduleName });
+    var plugin = new Plugin({ moduleName: moduleName, addTypename: false });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -102,7 +142,7 @@ describe('persistgraphql-webpack-plugin', function() {
       var fs = compiler.outputFileSystem;
       assert.equal(
         JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
-        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}'
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":"3f99fddff5dfe1ff4984f400cf62662a391acb0812ff584e8080e9d489017e50","query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":"4722dce4b669412291b70e2bfd2d6471fd55e599775a44c1a2d2721352583733"}'
       );
       done();
     });
@@ -118,7 +158,7 @@ describe('persistgraphql-webpack-plugin', function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var plugin = new Plugin({ moduleName: moduleName, addTypename: true });
+    var plugin = new Plugin({ moduleName: moduleName });
 
     var compiler = webpack({
       plugins: [virtualPlugin, plugin],
@@ -142,7 +182,7 @@ describe('persistgraphql-webpack-plugin', function() {
       var fs = compiler.outputFileSystem;
       assert.equal(
         JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
-        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n    __typename\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n    __typename\\n  }\\n}\\n":2}'
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n    __typename\\n  }\\n}\\n":"77e0699948d7649b55e17d763962810b9de6f60653321ef978f61814291b928e","query getCount {\\n  count {\\n    amount\\n    __typename\\n  }\\n}\\n":"91f7b17943cebb41bf6ef37793193211ff29fc7f0b397f33c1654f820c97cb45"}'
       );
       done();
     });
@@ -158,7 +198,8 @@ describe('persistgraphql-webpack-plugin', function() {
 
     var plugin = new Plugin({
       moduleName: moduleName,
-      filename: 'output_queries.json'
+      filename: 'output_queries.json',
+      addTypename: false
     });
 
     var compiler = webpack({
@@ -172,7 +213,7 @@ describe('persistgraphql-webpack-plugin', function() {
       var fs = compiler.outputFileSystem;
       assert.equal(
         fs.readFileSync(path.resolve('output_queries.json')).toString(),
-        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1}'
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":"3f99fddff5dfe1ff4984f400cf62662a391acb0812ff584e8080e9d489017e50"}'
       );
       done();
     });
@@ -188,7 +229,7 @@ describe('persistgraphql-webpack-plugin', function() {
       'example.graphql': 'query getCount { count { amount } }'
     });
 
-    var providerPlugin = new Plugin({ moduleName: moduleName });
+    var providerPlugin = new Plugin({ moduleName: moduleName, addTypename: false });
     var providerCompiler = webpack({
       plugins: [virtualProviderPlugin, providerPlugin],
       module: {
@@ -214,6 +255,7 @@ describe('persistgraphql-webpack-plugin', function() {
         }),
         new Plugin({
           moduleName: moduleName,
+          addTypename: false,
           provider: providerPlugin
         })
       ],
@@ -229,7 +271,7 @@ describe('persistgraphql-webpack-plugin', function() {
       var fs = compiler.outputFileSystem;
       assert.equal(
         JSON.stringify(eval(fs.readFileSync('/main.js').toString())),
-        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":1,"query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":2}'
+        '{"subscription onCounterUpdated {\\n  counterUpdated {\\n    amount\\n  }\\n}\\n":"3f99fddff5dfe1ff4984f400cf62662a391acb0812ff584e8080e9d489017e50","query getCount {\\n  count {\\n    amount\\n  }\\n}\\n":"4722dce4b669412291b70e2bfd2d6471fd55e599775a44c1a2d2721352583733"}'
       );
       done();
     });

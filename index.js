@@ -6,6 +6,14 @@ var path = require('path');
 var addTypenameTransformer = require('persistgraphql/lib/src/queryTransformers').addTypenameTransformer;
 var graphql = require('graphql');
 var _ = require('lodash');
+var crypto = require('crypto');
+
+function defaultHashQuery(query) {
+  return crypto
+    .createHash('sha256')
+    .update(query)
+    .digest('hex');
+}
 
 function PersistGraphQLPlugin(options) {
   this.options = options || {};
@@ -15,6 +23,8 @@ function PersistGraphQLPlugin(options) {
   } else {
     this._listeners = [];
   }
+  this.options.addTypename = typeof this.options.addTypename !== 'undefined' ? this.options.addTypename : true;
+  this.options.hashQuery = typeof this.options.hashQuery !== 'undefined' ? this.options.hashQuery : defaultHashQuery;
   this.options.excludeRegex = this.options.excludeRegex || /[\\/]node_modules[\\/]/;
   this.options.graphqlRegex = this.options.graphqlRegex || /(.graphql|.gql)$/;
   this.options.jsRegex = this.options.jsRegex || /(.jsx?|.tsx?)$/;
@@ -77,6 +87,7 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
                 // Workaround for `graphql-persisted-document-loader`
                 // It does not generate eval-friendly source code at the moment
                 var sourceLines = module._source._value.split(/\r\n|\r|\n/);
+                var len = sourceLines.length;
                 if (
                   sourceLines
                     .slice(-1)
@@ -84,8 +95,13 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
                     .indexOf('doc.documentId') === 0
                 ) {
                   // Swap last two lines of source code
-                  var len = sourceLines.length;
                   sourceLines = sourceLines.slice(0, len - 2).concat([sourceLines[len - 1], sourceLines[len - 2]]);
+                } else if (self.options.hashQuery) {
+                  var queryContents = graphql.print(eval(sourceLines.join('\n')));
+                  var queryId = self.options.hashQuery(queryContents);
+                  sourceLines = sourceLines
+                    .slice(0, len - 1)
+                    .concat(['doc.documentId = "' + queryId + '";', sourceLines[len - 1]]);
                 }
                 graphQLString += graphql.print(eval(sourceLines.join('\n')));
               } else if (self.options.jsRegex.test(module.resource)) {
@@ -154,6 +170,12 @@ PersistGraphQLPlugin.prototype.apply = function(compiler) {
             });
 
             mapObj = finalExtractor.createOutputMapFromString(allQueries.join('\n'));
+          }
+
+          if (self.options.hashQuery && !!mapObj) {
+            Object.keys(mapObj).forEach(function(query) {
+              mapObj[query] = self.options.hashQuery(query);
+            });
           }
 
           var newQueryMap = JSON.stringify(mapObj);
