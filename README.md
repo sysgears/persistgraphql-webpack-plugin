@@ -55,7 +55,7 @@ var PersistGraphQLPlugin = require('persistgraphql-webpack-plugin');
 const moduleName = path.resolve('node_modules/persisted_queries.json');
 const frontendPersistPlugin = new PersistGraphQLPlugin({ moduleName });
 const backendPersistPlugin =
-    new PersistGraphQLPlugin({ provider: clientPersistPlugin, moduleName });
+    new PersistGraphQLPlugin({ provider: frontendPersistPlugin, moduleName });
 
 var frontendWebpackConfig = {
   module: {
